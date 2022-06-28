@@ -1,0 +1,312 @@
+#include <stdio.h>
+
+#incude<time.h>
+#define MST (-7)
+#define UTC (0)
+#define CCT (+8)
+#define N 4
+#define Num 12
+
+    struct information
+	{
+		
+		char name[10];//30避免空间不够
+		char id[10];
+		char cub[10];
+		char condition;// 状态
+		int seat;//图书馆座位编号
+		char year[10];
+		char month[10];
+		char day[10];
+	}student[12];
+
+struct tm * ptm;
+time_t rawtime;
+
+void seating();
+void load();
+void time1();
+void save();
+void search();
+void printing();
+void menu();
+void tip();
+
+int main()
+{
+	int i=0,j=0;
+	FILE *fp1;
+	struct information student[12]={{"张三","10086","一班"},{"小四","20086","二班"},{"小明","30086","三班"},{"小红","40086","四班"},{"小强","50086","五班"},{"小狗","60086","六班"},{""},{"小猫","70086","八班"},{"小猪","80086","九班"},{""},{""},{""}};
+	fp1=fopen("C:\\Users\\86131\\Desktop\\B.txt","r+");
+	menu(student,i,j,fp1);
+	time ( &rawtime );
+	ptm = gmtime ( &rawtime );
+	time1(ptm,i);//清空座位情况
+	return 0;
+}
+
+void menu(struct information *student,int i,int j,FILE *fp1)
+{
+	int choice;
+
+	do
+	{
+			printf("\n\n\n\n");
+			printf("\t\t\t\t\t欢迎使用高校图书馆座位管理系统\n\n\n\n");
+			printf("\t\t\t\t\t按任意键进入高校图书馆座位管理系统菜单\n");
+		getchar();
+		system("cls");
+			printf("\n\n\n\t\t\t\t\t这里是菜单目录\n\n\n\n");
+			printf("\t\t\t\t\t结束程序请按\t0\n\n\n\n");
+			printf("\t\t\t\t\t座位及读者信息初始化请按\t1\n\n\n\n");
+			printf("\t\t\t\t\t图形显示座位占用信息请按\t2\n\n\n\n");
+			printf("\t\t\t\t\t选择座位请按\t3\n\n\n\n");
+				printf("\t\t\t\t\t打印座位请按\t4\n\n\n\n");
+			printf("\t\t\t\t\t请输入相应数字选择您的服务\n\n\n\n");
+		scanf("%d",&choice);
+			if( choice != 1 && choice != 2 && choice != 3 && choice !=4 )
+			{
+				printf("没有这项服务哟\n");
+				printf("请重新输入相应数字服务哟\n");
+				scanf("%d",&choice);
+			}
+		system("cls");
+	switch( choice )
+	{
+	case 1:load(student,i,j,fp1);system("pause");break;//座位及读者信息初始化
+	case 2:seating(student,i,j,fp1);system("pause");break;//打印座位分配信息
+	case 3:search(student,i,j,fp1);system("pause");break;//选择座位
+	case 4:printing(student,i,j,fp1);system("pause");break;//打印座位
+	}
+						
+	}while( choice != 0 );
+
+}
+
+
+void load(struct information *student,int i,int j,FILE *fp1)//预约+初始化
+{
+	int seat;
+
+		if(fp1==NULL){printf("cannot open the file");}
+		else
+		{		printf("open success\n");
+							
+		}
+		for(i=0;i<Num;i++)
+		{
+			if(strcmp(student[i].id,"1")>0)	
+			{
+				//student[i].seat=i+1;
+			student[i].condition='1';
+			}
+			student[i].seat=i+1;
+			
+		}
+		save(student,i,j,fp1);
+	
+	fclose(fp1);
+}
+
+void save(struct information *student,int i,int j,FILE *fp1)
+{
+	fp1=fopen("C:\\Users\\86131\\Desktop\\B.txt","w+");
+	if(fp1 == NULL){printf("cannot open the file\n");}
+	for(i =0;i<10;i++)
+	{
+		if(fwrite(&student[i],sizeof( struct information),1,fp1)!=1){printf("写入错误\n");}
+	}
+	fclose(fp1);
+}
+
+void time1(struct tm * ptm,int i)//晚上23时清空座位状态
+
+{
+  if(((*ptm).tm_hour+CCT)%24==23)
+  {
+	  for(i=0;i<10;i++)
+	  {
+	  student[i].condition='1';
+	  } 
+	 }
+}
+
+void search(struct information *student,int i,int j,FILE *fp1)
+{
+	int seat;
+	char name[10];
+	printf("预约座位系统\n");
+		printf("__________预约_____________\n");
+		printf("__________空闲座位有_____________\n");
+					for(i=1;i<Num;i++)//预约的座位
+					{
+						if(strcmp(student[i].id,"1")<0)//same
+						{
+							student[i].seat=i+1;
+							printf("%d座位:A%d\n",i+1,student[i].seat);
+						}
+					}	
+							printf("请输入你要预约的座位编号\n");
+							printf("============\n");
+							scanf("%d",&seat);
+							for(i=0;i<Num;i++)
+							{
+								if(strcmp(student[i].id,"1")<0 && student[i].seat == seat)
+								{
+											student[i].condition='1';//记录状态
+											printf("预约姓名\n");
+											scanf("%s",student[i].name);
+											printf("学生号\n");
+											scanf("%s",student[i].id);
+											printf("组织\n");
+											scanf("%s",student[i].cub);	
+											printf("选择年份\n");
+											scanf("%s",student[i].year);
+											if(strcmp(student[i].year,"2022")!=0)
+											{
+												printf("请重新输入年份");
+												scanf("%s",student[i].year);
+											}
+											printf("选择月份\n");
+											scanf("%s",student[i].month);
+									
+											printf("选择日期\n");
+											scanf("%s",student[i].day);
+									}
+							}
+							save(student,i,j,fp1);
+}
+
+void printing(struct information *student,int i,int j,FILE *fp1)
+{
+	char id[10];
+	printf("请输校园卡号\n");
+	scanf("%s",id);
+	printf("%s",id);
+	//printf("%d",strcmp(student[i].id,"id"));
+	for(i=0;i<10;i++)//读取有人的座位
+				{
+				
+					if(strcmp(student[i].id,id)==0)
+					{
+						student[i].condition='1';
+						student[i].seat=i+1;
+					printf("姓名:%s\n",student[i].name); 
+					printf("学生号:%s\n",student[i].id);
+					printf("组织:%s\n",student[i].cub);
+					printf("状态:%c\n",student[i].condition);
+					printf("座位:A%d\n",student[i].seat);
+					printf("预约时间\n");
+					printf("年份:%s",student[i].year);
+					printf("月%s",student[i].month);
+					printf("日%s\n",student[i].day);
+					}
+					
+				}
+tip(student,i,j,fp1,id);
+}
+
+void tip(struct information *student,int i,int j,FILE *fp1,char id[10])
+{
+	for(i=0;i<N;i++)
+	{
+		if(strcmp(student[i].id,id)==0)
+		{
+			
+			fp1 = fopen("C:\\Users\\86131\\Desktop\\门票.txt", "w+");
+			fprintf(fp1,"\t状态%c",student[i].condition);
+			fprintf(fp1,"\t预约时间为%s年%s月%s日",student[i].year,student[i].month,student[i].day);
+			fprintf(fp1,"\t姓名%s",student[i].name);
+			fprintf(fp1,"\t学生号%s",student[i].id);
+			fprintf(fp1,"\t组织%s\n",student[i].cub);
+			fprintf(fp1,"座位:A%d\n",student[i].seat);
+			fclose(fp1);
+		}
+					
+	}
+	
+}
+
+void seating(struct information *student,int i,int j,FILE *fp1)
+{
+	
+	char str[50];
+	i=4;j=0;
+
+	printf("┌-----------┬-----------┬-----------┬-----------┐\n");
+	for(j=0;j<i;j++)
+	{
+		if(strcmp(student[j].cub,"1")>0)
+		{
+			student[j].condition='1';
+				printf("｜   %c      ",student[j].condition);
+		}
+			else	printf("｜        ");
+
+	}
+		printf("｜\n");
+	
+
+	for(j=0;j<i;j++)
+	{
+		if(strcmp(student[j].cub,"1")>0)
+		{
+				printf("｜   A%d     ",student[j].seat);
+		}
+		else	printf("｜        ");
+	}
+		printf("｜\n");
+		
+		printf("└-----------┴-----------┴-----------┴-----------┘\n");
+		
+		printf("┌-----------┬-----------┬-----------┬-----------┐\n");
+	for(j=4;j<i+4;j++)
+	{
+		if(strcmp(student[j].cub,"1")>0)
+		{
+			student[j].condition='1';
+				printf("｜   %c      ",student[j].condition);
+		}
+			else	printf("｜   0      ");
+
+	}
+		printf("｜\n");
+	
+
+	for(j=4;j<i+4;j++)
+	{
+	
+				printf("｜   A%d     ",student[j].seat);
+	
+	}
+		printf("｜\n");
+		
+		printf("└-----------┴-----------┴-----------┴-----------┘\n");
+
+		
+		printf("┌-----------┬-----------┬-----------┬-----------┐\n");
+	for(j=8;j<i+8;j++)
+	{
+		if(strcmp(student[j].cub,"1")>0)
+		{
+			student[j].condition='1';
+				printf("｜   %c      ",student[j].condition);
+		}
+			else	printf("｜   0      ");
+
+
+	}
+		printf("｜\n");
+	
+
+	for(j=8;j<i+8;j++)
+	{
+	
+		if(j > 8)	printf("｜   A%d    ",student[j].seat);
+		else printf("｜   A%d     ",student[j].seat);
+	}
+		printf("｜\n");
+		
+		printf("└-----------┴-----------┴-----------┴-----------┘\n");
+		
+}
